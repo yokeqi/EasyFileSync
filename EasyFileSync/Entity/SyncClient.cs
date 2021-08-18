@@ -50,39 +50,29 @@ namespace EasyFileSync.Entity
             var tarFiles = tar.GetFiles();
 
             // TODO:改成集合操作（交、差）集来处理
-            var newFiles = srcFiles.Except(tarFiles);// 源有目标没有，新增
-            if (Mode == SyncMode.Mirror)
+            var newFiles = srcFiles.Except(tarFiles, new FileInfoComparer());// 源有目标没有，新增
+            Parallel.ForEach(newFiles, file =>
             {
-                var delFiles = tarFiles.Except(srcFiles);// 源没有目标有，删除
-                var commonFiles = srcFiles.Intersect(tarFiles);// 源有目标有，对比更新
-            }
-
-            // 源有目标没有，新增
-            Parallel.ForEach(srcFiles, file =>
-            {
-                Print($"匹配：{file.FullName}");
-
-                if (tarFiles.Any(f => f.Name == file.Name))
-                    return;
-
                 var tarPath = Path.Combine(tar.FullName, file.Name);
                 file.CopyTo(tarPath, true);
                 Print($"新增：{tarPath}");
             });
 
 
-            if (this.Mode == SyncMode.Mirror)
+            if (Mode == SyncMode.Mirror)
             {
-                // 源有目标有，比对更新
-                Parallel.ForEach(srcFiles, file =>
+                var delFiles = tarFiles.Except(srcFiles, new FileInfoComparer());// 源没有目标有，删除
+                Parallel.ForEach(delFiles, file =>
                 {
-                    Print($"匹配：{file.FullName}");
+                    file.Delete();
+                    Print($"删除文件：{file.FullName}");
+                });
 
-                    var temp = tarFiles.FirstOrDefault(f => f.Name == file.Name);
-                    if (temp == null)
-                        return;
-
+                var commonFiles = srcFiles.Intersect(tarFiles, new FileInfoComparer());// 源有目标有，对比更新
+                Parallel.ForEach(commonFiles, file =>
+                {
                     var srcFile = new NTFSFile(file);
+                    var temp = tarFiles.FirstOrDefault(f => f.Name == file.Name);
                     var tarFile = new NTFSFile(temp);
                     if (
                     (Strategy == SyncStrategy.Size && srcFile.GetSize() == tarFile.GetSize())
@@ -95,40 +85,66 @@ namespace EasyFileSync.Entity
                     file.CopyTo(tarPath, true);
                     Print($"更新：{tarPath}");
                 });
-
-
-                // 源没有目标有，删除
-                Parallel.ForEach(tarFiles, file =>
-                {
-                    if (srcFiles.Any(f => f.Name == file.Name))
-                        return;
-
-                    file.Delete();
-                    Print($"删除文件：{file.FullName}");
-                });
             }
 
 
             // 继续遍历文件夹
             var srcDirs = src.GetDirectories();
             var tarDirs = tar.GetDirectories();
-            // 源有目标没有，新增
-            var newDirs = srcDirs.Where(d => tarDirs.Any(d1 => d1.Name == d.Name));
-            Parallel.ForEach(srcDirs, dir =>
-            {
-                if (tarDirs.Any(d => d.Name == dir.Name))
-                    return;
 
+            var newDirs = srcDirs.Except(tarDirs, new DirectoryComparer());// 源有目标没有，新增
+            Parallel.ForEach(newDirs, dir =>
+            {
+                // 懒人无敌，既然.NET的DirectoryInfo没有提供CopyTo函数，那就直接调用cmd命令的xcopy
                 var tarPath = Path.Combine(tar.FullName, dir.Name);
-                var cmd = $@"xcopy ""{dir.FullName}"" ""{tarPath}"" /d/e";
+                var cmd = $@"echo d | xcopy ""{dir.FullName}"" ""{tarPath}"" /d/e";
                 //System.Diagnostics.Process.Start("cmd.exe", cmd);
-                Print($"复制文件夹：{cmd}");
+                System.Diagnostics.Process proIP = new System.Diagnostics.Process();
+                proIP.StartInfo.FileName = "cmd.exe";
+                proIP.StartInfo.UseShellExecute = false;
+                proIP.StartInfo.RedirectStandardInput = true;
+                proIP.StartInfo.RedirectStandardOutput = true;
+                proIP.StartInfo.RedirectStandardError = true;
+                proIP.StartInfo.CreateNoWindow = true;
+                proIP.Start();
+                proIP.StandardInput.WriteLine(cmd);
+                proIP.StandardInput.WriteLine("exit");
+                string strResult = proIP.StandardOutput.ReadToEnd();
+                proIP.Close();
+                Print($"复制文件夹：{tarPath}");
             });
 
             if (Mode == SyncMode.Mirror)
             {
                 // 源没有目标有，删除
+                var delDirs = tarDirs.Except(srcDirs, new DirectoryComparer());
+                Parallel.ForEach(delDirs, dir =>
+                {
+                    dir.Delete(true);
+                    Print($"删除文件夹：{dir.FullName}");
+                });
+
+                // 源有目标有，递归对比
+                var commonDirs = srcDirs.Intersect(tarDirs, new DirectoryComparer());
+                Parallel.ForEach(commonDirs, dir =>
+                {
+                    var temp = tarDirs.FirstOrDefault(f => f.Name == dir.Name);
+                    FetchNodes(dir, temp);
+                });
             }
+        }
+
+        class FileInfoComparer : IEqualityComparer<FileInfo>
+        {
+            public bool Equals(FileInfo x, FileInfo y) => x.Name == y.Name;
+
+            public int GetHashCode(FileInfo obj) => obj.Name.GetHashCode();
+        }
+        class DirectoryComparer : IEqualityComparer<DirectoryInfo>
+        {
+            public bool Equals(DirectoryInfo x, DirectoryInfo y) => x.Name == y.Name;
+
+            public int GetHashCode(DirectoryInfo obj) => obj.Name.GetHashCode();
         }
     }
 
