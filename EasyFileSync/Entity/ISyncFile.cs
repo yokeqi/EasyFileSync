@@ -17,7 +17,7 @@ namespace EasyFileSync.Entity
 
         long GetSize();
         string GetDate(string dateFormat = "yyyy-MM-dd hh:mm:ss");
-        string GetHashCode(HashAlgorithm hashAlg);
+        string GetHash(HashAlgorithm hashAlg = null);
         void Delete();
     }
 
@@ -37,10 +37,10 @@ namespace EasyFileSync.Entity
 
         public string GetDate(string dateFormat = "yyyy-MM-dd hh:mm:ss") => File.LastWriteTime.ToString(dateFormat);
 
-        public string GetHashCode(HashAlgorithm hashAlg)
+        public string GetHash(HashAlgorithm hashAlg = null)
         {
             if (hashAlg == null)
-                hashAlg = MD5.Create();
+                hashAlg = SHA1.Create();
 
             using (var stream = File.OpenRead())
             {
@@ -72,7 +72,7 @@ namespace EasyFileSync.Entity
 
         public string GetDate(string dateFormat = "yyyy-MM-dd hh:mm") => _file.Modified.ToString(dateFormat);
 
-        public string GetHashCode(HashAlgorithm hashAlg) => throw new NotSupportedException("FTP 暂不支持 HashCode 校验。");
+        public string GetHash(HashAlgorithm hashAlg = null) => throw new NotSupportedException("FTP 暂不支持 HashCode 校验。");
 
         public long GetSize() => _file.Size;
         public void Delete()

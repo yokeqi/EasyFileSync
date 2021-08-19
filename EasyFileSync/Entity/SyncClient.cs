@@ -40,7 +40,7 @@ namespace EasyFileSync.Entity
             {
                 CopyTo(file, tar);
                 var tarPath = Path.Combine(tar.FullName, file.Name);
-                Print($"新增：{tarPath}");
+                Print($"新增文件：{tarPath}");
             });
 
             if (Mode == SyncMode.Mirror)
@@ -60,13 +60,13 @@ namespace EasyFileSync.Entity
                     if (
                     (Strategy == SyncStrategy.Size && file.GetSize() == temp.GetSize())
                     || (Strategy == SyncStrategy.Date && file.GetDate() == temp.GetDate())
-                    || (Strategy == SyncStrategy.HashCode && file.GetHashCode() == temp.GetHashCode())
+                    || (Strategy == SyncStrategy.HashCode && file.GetHash() == temp.GetHash())
                     )
                         return;
 
                     CopyTo(file, tar);
                     var tarPath = Path.Combine(tar.FullName, file.Name);
-                    Print($"更新：{tarPath}");
+                    Print($"更新文件：{tarPath}");
                 });
             }
 
@@ -79,7 +79,7 @@ namespace EasyFileSync.Entity
             {
                 CopyTo(dir, tar);
                 var tarPath = Path.Combine(tar.FullName, dir.Name);
-                Print($"新增：{tarPath}");
+                Print($"新增文件夹：{tarPath}");
             });
 
             if (Mode == SyncMode.Mirror)

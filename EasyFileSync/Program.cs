@@ -1,6 +1,7 @@
 ﻿using EasyFileSync.Entity;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,8 @@ namespace EasyFileSync
             var src = $@"H:\Code Repo\book\skill";
             var tar = $@"E:\www\docs";
 
+            var sw = new Stopwatch();
+            sw.Start();
             try
             {
                 var client = new FileToFileSyncClient()
@@ -32,6 +35,8 @@ namespace EasyFileSync
             }
             finally
             {
+                sw.Stop();
+                Print($"总耗时：{sw.Elapsed.TotalMilliseconds}ms.");
                 Console.WriteLine();
                 Console.WriteLine("按任意键退出...");
                 Console.ReadKey();
