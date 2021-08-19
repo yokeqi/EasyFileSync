@@ -19,8 +19,8 @@ namespace EasyFileSync
             {
                 var client = new FileToFileSyncClient()
                 {
-                    From = src,
-                    To = tar
+                    From = new NTFSDir(src),
+                    To = new NTFSDir(tar)
                 };
                 client.OutStream += Print;
                 client.Start();

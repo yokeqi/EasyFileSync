@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Core\Enums.cs" />
     <Compile Include="Core\Extends.cs" />
+    <Compile Include="Entity\ISyncDir.cs" />
     <Compile Include="Entity\ISyncFile.cs" />
     <Compile Include="Entity\SyncClient.cs" />
     <Compile Include="Program.cs" />
