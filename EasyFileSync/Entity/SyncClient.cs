@@ -14,13 +14,15 @@ namespace EasyFileSync.Entity
         public delegate void Output(string text);
         public event Output OutStream;
 
-        public ISyncDir From { get; set; }
-        public ISyncDir To { get; set; }
+        public ISyncDir From { get; protected set; }
+        public ISyncDir To { get; protected set; }
         public SyncMode Mode { get; set; } = SyncMode.Mirror;
         public SyncStrategy Strategy { get; set; } = SyncStrategy.Date;
         public bool IsParallel { get; set; } = true;
         public List<string> IgnoreExts { get; set; } = new List<string>();
 
+
+        public abstract void InitDir(string from, string to);
         public void Start()
         {
             if (From == null || To == null)
@@ -104,6 +106,7 @@ namespace EasyFileSync.Entity
 
         protected abstract void CopyTo(ISyncDir src, ISyncDir parentDir);
         protected abstract void CopyTo(ISyncFile src, ISyncDir parentDir);
+
     }
 
     public class FileToFileSyncClient : SyncClient
@@ -132,6 +135,18 @@ namespace EasyFileSync.Entity
         {
             var tarPath = Path.Combine(parentDir.FullName, src.Name);
             (src as NTFSFile).File.CopyTo(tarPath, true);
+        }
+
+        public override void InitDir(string from, string to)
+        {
+            if (string.IsNullOrWhiteSpace(from) || !Directory.Exists(from))
+                throw new ArgumentNullException("无效参数 from。");
+
+            if (string.IsNullOrWhiteSpace(to) || !Directory.Exists(to))
+                throw new ArgumentNullException("无效参数 to");
+
+            this.From = new NTFSDir(from);
+            this.To = new NTFSDir(to);
         }
     }
 

@@ -1,5 +1,7 @@
 ﻿using EasyFileSync.Entity;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,20 +15,38 @@ namespace EasyFileSync
     {
         static void Main(string[] args)
         {
-            var src = $@"H:\Code Repo\book\skill";
-            var tar = $@"E:\www\docs";
-
             var sw = new Stopwatch();
             sw.Start();
             try
             {
-                var client = new FileToFileSyncClient()
+                Print("加载配置中...");
+                var configPath = $"app.json";
+                if (!File.Exists(configPath))
                 {
-                    From = new NTFSDir(src),
-                    To = new NTFSDir(tar)
-                };
-                client.OutStream += Print;
-                client.Start();
+                    Print($"未检测到配置文件：app.json");
+                    return;
+                }
+
+                var json = JObject.Parse(File.ReadAllText(configPath));
+                var tasks = json["tasks"] as JArray;
+                var queue = new ConcurrentQueue<SyncClient>();
+                Parallel.ForEach(tasks, task =>
+                {
+                    var client = SyncClientFactory.Create(task as JObject);
+                    if (client == null)
+                        return;
+                    queue.Enqueue(client);
+                });
+                Print($"加载配置完成，同步任务 {queue.Count} 项...");
+
+                // TODO: 好像记得C#有个可以并发计数的类，可以实现诸如 正在处理(1/3) 的功能
+                Parallel.ForEach(queue, client =>
+                {
+                    client.OutStream += Print;
+                    client.Start();
+                });
+                Print($"全部任务同步完成。");
+
             }
             catch (Exception ex)
             {

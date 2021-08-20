@@ -14,11 +14,11 @@ namespace EasyFileSync.Core
         /// <summary>
         /// 镜像
         /// </summary>
-        Mirror,
+        Mirror = 0,
         /// <summary>
         /// 增量
         /// </summary>
-        Append
+        Append = 1
     }
 
     /// <summary>
@@ -29,14 +29,14 @@ namespace EasyFileSync.Core
         /// <summary>
         /// 文件大小
         /// </summary>
-        Size,
+        Size = 0,
         /// <summary>
         /// 最后修改时间
         /// </summary>
-        Date,
+        Date = 1,
         /// <summary>
         /// HashCode
         /// </summary>
-        HashCode,
+        HashCode = 2,
     }
 }
