@@ -52,10 +52,17 @@
   <ItemGroup>
     <Compile Include="Core\Enums.cs" />
     <Compile Include="Core\Extends.cs" />
-    <Compile Include="Entity\ISyncDir.cs" />
-    <Compile Include="Entity\ISyncFile.cs" />
-    <Compile Include="Entity\SyncClient.cs" />
-    <Compile Include="Entity\SyncClientFactory.cs" />
+    <Compile Include="Contracts\ISyncClient.cs" />
+    <Compile Include="FTP\FluentFtpClient.cs" />
+    <Compile Include="FTP\FtpConfig.cs" />
+    <Compile Include="FTP\FtpDir.cs" />
+    <Compile Include="FTP\FtpFile.cs" />
+    <Compile Include="Contracts\ISyncDir.cs" />
+    <Compile Include="Contracts\ISyncFile.cs" />
+    <Compile Include="NTFS\NTFSDir.cs" />
+    <Compile Include="NTFS\NTFSFile.cs" />
+    <Compile Include="SyncClient.cs" />
+    <Compile Include="SyncClientFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -66,4 +73,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties app_1json__JsonSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

@@ -1,13 +1,15 @@
-﻿using EasyFileSync.Core;
+﻿using EasyFileSync.Contracts;
+using EasyFileSync.Core;
+using EasyFileSync.Ftp;
+using EasyFileSync.NTFS;
+using FluentFTP;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace EasyFileSync.Entity
+namespace EasyFileSync
 {
     public abstract class SyncClient
     {
@@ -23,7 +25,7 @@ namespace EasyFileSync.Entity
 
 
         public abstract void InitDir(string from, string to);
-        public void Start()
+        public virtual void Start()
         {
             if (From == null || To == null)
                 throw new Exception("From & To 目录未初始化");
@@ -32,7 +34,7 @@ namespace EasyFileSync.Entity
         }
         protected void Print(string output) => OutStream?.Invoke(output);
 
-        private void FetchNodes(ISyncDir src, ISyncDir tar)
+        protected void FetchNodes(ISyncDir src, ISyncDir tar)
         {
             var srcFiles = src.GetFiles();
             var tarFiles = tar.GetFiles();
@@ -106,7 +108,6 @@ namespace EasyFileSync.Entity
 
         protected abstract void CopyTo(ISyncDir src, ISyncDir parentDir);
         protected abstract void CopyTo(ISyncFile src, ISyncDir parentDir);
-
     }
 
     public class FileToFileSyncClient : SyncClient
@@ -141,7 +142,6 @@ namespace EasyFileSync.Entity
         {
             if (string.IsNullOrWhiteSpace(from) || !Directory.Exists(from))
                 throw new ArgumentNullException("无效参数 from。");
-
             if (string.IsNullOrWhiteSpace(to) || !Directory.Exists(to))
                 throw new ArgumentNullException("无效参数 to");
 
@@ -150,4 +150,42 @@ namespace EasyFileSync.Entity
         }
     }
 
+    public class FileToFtpSyncClient : SyncClient
+    {
+        public FtpConfig _ftpConfig;
+        public FileToFtpSyncClient(FtpConfig ftpClient)
+        {
+            _ftpConfig = ftpClient;
+        }
+
+        public override void InitDir(string from, string to)
+        {
+            if (string.IsNullOrWhiteSpace(from) || !Directory.Exists(from))
+                throw new ArgumentNullException("无效参数 from。");
+            if (string.IsNullOrWhiteSpace(to))
+                throw new ArgumentNullException("无效参数 to");
+
+            this.From = new NTFSDir(from);
+            this.To = new FtpDir(_ftpConfig, to);
+        }
+
+        protected override void CopyTo(ISyncDir src, ISyncDir parentDir)
+        {
+            var tarPath = Path.Combine(parentDir.FullName, src.Name);
+            using (var ftp = _ftpConfig.CreateFtpClient())
+            {
+                ftp.UploadDirectory(src.FullName, tarPath, FtpFolderSyncMode.Mirror);
+            }
+        }
+
+        protected override void CopyTo(ISyncFile src, ISyncDir parentDir)
+        {
+            var tarPath = Path.Combine(parentDir.FullName, src.Name).Replace("\\", "/");
+            using (var ftp = _ftpConfig.CreateFtpClient())
+            {
+                // TODO:上传上去时间就变成最新的了，如何保持上传后文件属性保留？类似Beyond Compare
+                ftp.UploadFile(src.FullName, tarPath);
+            }
+        }
+    }
 }

@@ -1,12 +1,9 @@
 ﻿using EasyFileSync.Core;
+using EasyFileSync.Ftp;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EasyFileSync.Entity
+namespace EasyFileSync
 {
     public static class SyncClientFactory
     {
@@ -31,6 +28,11 @@ namespace EasyFileSync.Entity
                     client = new FileToFileSyncClient();
                     break;
                 case 1:
+                    if (!json.ContainsKey("ftpserver"))
+                        throw new ArgumentNullException($"{name} 未设置：ftpserver");
+
+                    var ftpConfig = FtpConfig.Parse(json["ftpserver"] as JObject);
+                    client = new FileToFtpSyncClient(ftpConfig);
                     break;
                 case 2:
                     break;
