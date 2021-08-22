@@ -28,13 +28,22 @@ namespace EasyFileSync
                     client = new FileToFileSyncClient();
                     break;
                 case 1:
-                    if (!json.ContainsKey("ftpserver"))
-                        throw new ArgumentNullException($"{name} 未设置：ftpserver");
+                    {
+                        if (!json.ContainsKey("ftpserver"))
+                            throw new ArgumentNullException($"{name} 未设置：ftpserver");
 
-                    var ftpConfig = FtpConfig.Parse(json["ftpserver"] as JObject);
-                    client = new FileToFtpSyncClient(ftpConfig);
+                        var ftpConfig = FtpConfig.Parse(json["ftpserver"] as JObject);
+                        client = new FileToFtpSyncClient(ftpConfig);
+                    }
                     break;
                 case 2:
+                    {
+                        if (!json.ContainsKey("ftpserver"))
+                            throw new ArgumentNullException($"{name} 未设置：ftpserver");
+
+                        var ftpConfig = FtpConfig.Parse(json["ftpserver"] as JObject);
+                        client = new FtpToFileSyncClient(ftpConfig);
+                    }
                     break;
             }
 

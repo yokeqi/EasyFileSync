@@ -188,4 +188,42 @@ namespace EasyFileSync
             }
         }
     }
+
+    public class FtpToFileSyncClient : SyncClient
+    {
+        public FtpConfig _ftpConfig;
+        public FtpToFileSyncClient(FtpConfig config)
+        {
+            _ftpConfig = config;
+        }
+
+        public override void InitDir(string from, string to)
+        {
+            if (string.IsNullOrWhiteSpace(from))
+                throw new ArgumentNullException("无效参数 from。");
+            if (string.IsNullOrWhiteSpace(to) || !Directory.Exists(to))
+                throw new ArgumentNullException("无效参数 to");
+
+            this.From = new FtpDir(_ftpConfig, from);
+            this.To = new NTFSDir(to);
+        }
+
+        protected override void CopyTo(ISyncDir src, ISyncDir parentDir)
+        {
+            var tarPath = Path.Combine(parentDir.FullName, src.Name);
+            using (var ftp = _ftpConfig.CreateFtpClient())
+            {
+                ftp.DownloadDirectory(tarPath, src.FullName, FtpFolderSyncMode.Mirror);
+            }
+        }
+
+        protected override void CopyTo(ISyncFile src, ISyncDir parentDir)
+        {
+            var tarPath = Path.Combine(parentDir.FullName, src.Name);
+            using (var ftp = _ftpConfig.CreateFtpClient())
+            {
+                ftp.DownloadFile(tarPath, src.FullName);
+            }
+        }
+    }
 }

@@ -15,19 +15,6 @@
             },
             "from": "", // 从哪里
             "to": "" // 往哪里拷贝
-        },
-        {
-            // 以下参数未标 * 号均非必填
-            "name": "sync_doc", // *
-            "type": 1, // * 0 文件 to 文件，1 文件 to FTP， 2 FTP to 文件
-            "ftpserver": {
-                "host": "localhost",
-                "user": "lin-ftp",
-                "pass": "lin123123",
-                "encoding": "gbk" // 缺省应该是ASCII
-            },
-            "from": "H:\\Code Repo\\book\\skill\\DevOps", // 从哪里
-            "to": "/book" // 往哪里拷贝
         }
     ]
 }
