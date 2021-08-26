@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentFTP, Version=34.0.2.0, Culture=neutral, PublicKeyToken=f4af092b1d8df44f, processorArchitecture=MSIL">
-      <HintPath>packages\FluentFTP.34.0.2\lib\net45\FluentFTP.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -50,32 +47,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Enums.cs" />
-    <Compile Include="Core\Extends.cs" />
-    <Compile Include="Contracts\ISyncClient.cs" />
-    <Compile Include="FTP\FluentFtpClient.cs" />
-    <Compile Include="FTP\FtpConfig.cs" />
-    <Compile Include="FTP\FtpDir.cs" />
-    <Compile Include="FTP\FtpFile.cs" />
-    <Compile Include="Contracts\ISyncDir.cs" />
-    <Compile Include="Contracts\ISyncFile.cs" />
-    <Compile Include="NTFS\NTFSDir.cs" />
-    <Compile Include="NTFS\NTFSFile.cs" />
-    <Compile Include="SyncClient.cs" />
-    <Compile Include="SyncClientFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyFileSync.Core\EasyFileSync.Core.csproj">
+      <Project>{93b79ee8-bdfc-4392-9ac1-e127c3922b77}</Project>
+      <Name>EasyFileSync.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties app_1json__JsonSchema="" />
+      <UserProperties app_1json__JsonSchema="https://json.schemastore.org/config.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

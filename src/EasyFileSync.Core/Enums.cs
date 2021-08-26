@@ -4,8 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EasyFileSync.Core
+namespace EasyFileSync.Core.Enums
 {
+    /// <summary>
+    /// 同步类型
+    /// </summary>
+    public enum SyncType
+    {
+        // 本地文件同步
+        LocalToLocal = 0,
+        /// <summary>
+        /// 本地同步到Ftp
+        /// </summary>
+        LocalToFtp = 1,
+        /// <summary>
+        /// Ftp同步到本地
+        /// </summary>
+        FtpToLocal = 2,
+        /// <summary>
+        /// Ftp胡同不
+        /// </summary>
+        FtpToFtp = 3
+    }
+
     /// <summary>
     /// 同步模式
     /// </summary>

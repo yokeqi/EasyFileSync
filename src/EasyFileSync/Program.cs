@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using EasyFileSync.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -24,11 +25,11 @@ namespace EasyFileSync
                 }
 
                 var json = JObject.Parse(File.ReadAllText(configPath));
-                var tasks = json["tasks"] as JArray;
-                var queue = new ConcurrentQueue<SyncClient>();
-                Parallel.ForEach(tasks, task =>
+                var jobs = json["jobs"] as JArray;
+                var queue = new ConcurrentQueue<SyncJobBase>();
+                Parallel.ForEach(jobs, job =>
                 {
-                    var client = SyncClientFactory.Create(task as JObject);
+                    var client = SyncJobFactory.CreateClient(job as JObject);
                     if (client == null)
                         return;
                     queue.Enqueue(client);

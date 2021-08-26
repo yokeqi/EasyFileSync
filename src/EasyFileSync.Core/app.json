@@ -1,0 +1,27 @@
+{
+  "jobs": [
+    {
+      // 以下参数未标 * 号均非必填
+      "name": "本地文件同步模板", // *
+      "type": 0, // * 0 文件 to 文件，1 文件 to FTP， 2 FTP to 文件
+      "disable": 1, // 0 启用(默认)，1 禁用
+      "mode": 0, // 0 镜像(默认)，1 增量
+      "strategy": 0, // 0 修改日期(默认)，1 文件大小，2 文件哈希值
+      "from": "d:\\from", // 从哪里，文件路径记得要用双斜杠\\
+      "to": "d:\\to" // 往哪里拷贝，文件路径记得要用双斜杠\\
+    },
+    {
+      "name": "Ftp模板",
+      "type": 1,
+      "disable": 1,
+      "from": "d:\\from",
+      "to": {
+        "path": "/to/", // ftp路径是反斜杠/
+        "host": "localhost",
+        "user": "admin",
+        "pass": "123456",
+        "encoding": "gbk" // 缺省应该是ASCII
+      }
+    }
+  ]
+}
