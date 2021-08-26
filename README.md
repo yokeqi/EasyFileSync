@@ -10,7 +10,6 @@
 
 #### 设计文档
 * [简单的类图](https://gitee.com/yokeqi/easy-sync/tree/master/doc/class.jpg)
-<img src="https://gitee.com/yokeqi/easy-sync/tree/master/doc/class.jpg"></img>
 
 #### 待解决问题
 * Ftp与本地文件的一致性校验问题
